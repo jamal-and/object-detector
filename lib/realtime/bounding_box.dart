@@ -7,6 +7,7 @@ class BoundingBox extends StatelessWidget {
   final int previewW;
   final double screenH;
   final double screenW;
+  final String text;
 
   BoundingBox(
     this.results,
@@ -14,6 +15,7 @@ class BoundingBox extends StatelessWidget {
     this.previewW,
     this.screenH,
     this.screenW,
+    this.text,
   );
 
   @override
@@ -60,7 +62,7 @@ class BoundingBox extends StatelessWidget {
               ),
             ),
             child: Text(
-              "${re["detectedClass"]} ${(re["confidenceInClass"] * 100).toStringAsFixed(0)}%",
+              "${text} ${(re["confidenceInClass"] * 100).toStringAsFixed(0)}%",
               style: TextStyle(
                 color: Color.fromRGBO(37, 213, 253, 1.0),
                 fontSize: 14.0,

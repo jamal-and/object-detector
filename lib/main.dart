@@ -1,5 +1,7 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:object_detection/controller.dart';
 import 'package:object_detection/realtime/live_camera.dart';
 import 'package:object_detection/static%20image/static.dart';
 
@@ -9,6 +11,7 @@ Future<void> main() async {
   // initialize the cameras when the app starts
   WidgetsFlutterBinding.ensureInitialized();
   cameras = await availableCameras();
+  Get.put(ControllerX());
   // running the app
   runApp(MaterialApp(
     home: MyApp(),

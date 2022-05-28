@@ -1,7 +1,15 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
 import 'package:image_picker/image_picker.dart';
+import 'package:object_detection/controller.dart';
 import 'package:tflite/tflite.dart';
+import 'package:flutter_tts/flutter_tts.dart';
+import 'package:translator/translator.dart';
+import 'package:flutter_tts/flutter_tts.dart';
+
+import '../realtime/live_camera.dart';
 
 class StaticImage extends StatefulWidget {
   @override
@@ -14,8 +22,9 @@ class _StaticImageState extends State<StaticImage> {
   bool _busy;
   double _imageWidth, _imageHeight;
 
+  GoogleTranslator translator;
   final picker = ImagePicker();
-
+  TtsState ttsState = TtsState.stopped;
   // this function loads the model
   loadTfModel() async {
     await Tflite.loadModel(
@@ -26,6 +35,10 @@ class _StaticImageState extends State<StaticImage> {
 
   // this function detects the objects on the image
   detectObject(File image) async {
+    //FlutterTts flutterTts = Get.find<ControllerX>().flutterTts;
+    FlutterTts flutterTts = FlutterTts();
+
+    await flutterTts.setLanguage('tr');
     var recognitions = await Tflite.detectObjectOnImage(
         path: image.path, // required
         model: "SSDMobileNet",
@@ -46,11 +59,31 @@ class _StaticImageState extends State<StaticImage> {
     setState(() {
       _recognitions = recognitions;
     });
+    final translator = GoogleTranslator();
+    final input = "${recognitions[0]["detectedClass"]}";
+    translator.translate(input, to: 'tr').then((value) {
+      flutterTts.speak(value.toString());
+    }).toString();
+    for (var i = 0; i < _recognitions.length; i++) {
+      final input = "${_recognitions[i]["detectedClass"]}";
+      print('trans22323 ${_recognitions[i]["detectedClass"]}');
+      translator.translate(input, to: 'tr').then((value) {
+        setState(() {
+          _recognitions[i]["detectedClass"] = value.toString();
+        });
+      }).toString();
+    }
+    //print('trans $newText');
+    //FlutterTts().speak(_recognitions[0]["detectedClass"]);
   }
 
   @override
   void initState() {
     super.initState();
+
+    translator = GoogleTranslator();
+    translator.translate('sourceText', to: 'tr');
+
     _busy = true;
     loadTfModel().then((val) {
       {
@@ -150,9 +183,11 @@ class _StaticImageState extends State<StaticImage> {
       body: SafeArea(
         child: Container(
           alignment: Alignment.center,
-          child: Stack(
-            children: stackChildren,
-          ),
+          child: _busy
+              ? CircularProgressIndicator()
+              : Stack(
+                  children: stackChildren,
+                ),
         ),
       ),
     );
@@ -183,5 +218,12 @@ class _StaticImageState extends State<StaticImage> {
       }
     });
     detectObject(_image);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      FlutterTts flutterTts = FlutterTts();
+    }
   }
 }

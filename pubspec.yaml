@@ -31,7 +31,10 @@ dependencies:
   image_picker: ^0.6.7
   tflite:
   camera: ^0.5.8+7
-
+  flutter_tts: ^3.3.3
+  translator: ^0.1.5
+  get: ^4.6.5
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter
