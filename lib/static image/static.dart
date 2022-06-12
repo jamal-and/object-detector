@@ -17,12 +17,13 @@ class StaticImage extends StatefulWidget {
 }
 
 class _StaticImageState extends State<StaticImage> {
-  File _image;
-  List _recognitions;
-  bool _busy;
-  double _imageWidth, _imageHeight;
-
-  GoogleTranslator translator;
+  File? _image;
+  List? _recognitions;
+  late bool _busy;
+  double? _imageWidth, _imageHeight;
+  ControllerX controllerX = Get.find<ControllerX>();
+  FlutterTts flutterTts = Get.find<ControllerX>().flutterTts;
+  late GoogleTranslator translator;
   final picker = ImagePicker();
   TtsState ttsState = TtsState.stopped;
   // this function loads the model
@@ -36,10 +37,10 @@ class _StaticImageState extends State<StaticImage> {
   // this function detects the objects on the image
   detectObject(File image) async {
     //FlutterTts flutterTts = Get.find<ControllerX>().flutterTts;
-    FlutterTts flutterTts = FlutterTts();
+    // FlutterTts flutterTts = FlutterTts();
 
-    await flutterTts.setLanguage('tr');
-    var recognitions = await Tflite.detectObjectOnImage(
+    //await flutterTts.setLanguage('tr');
+    var recognitions = await (Tflite.detectObjectOnImage(
         path: image.path, // required
         model: "SSDMobileNet",
         imageMean: 127.5,
@@ -47,7 +48,7 @@ class _StaticImageState extends State<StaticImage> {
         threshold: 0.4, // defaults to 0.1
         numResultsPerClass: 10, // defaults to 5
         asynch: true // defaults to true
-        );
+        ) as Future<List<dynamic>?>);
     FileImage(image)
         .resolve(ImageConfiguration())
         .addListener((ImageStreamListener((ImageInfo info, bool _) {
@@ -60,21 +61,27 @@ class _StaticImageState extends State<StaticImage> {
       _recognitions = recognitions;
     });
     final translator = GoogleTranslator();
-    final input = "${recognitions[0]["detectedClass"]}";
+    final input = "${recognitions![0]["detectedClass"]}";
     translator.translate(input, to: 'tr').then((value) {
-      flutterTts.speak(value.toString());
+      _speak(value.toString());
     }).toString();
-    for (var i = 0; i < _recognitions.length; i++) {
-      final input = "${_recognitions[i]["detectedClass"]}";
-      print('trans22323 ${_recognitions[i]["detectedClass"]}');
+    for (var i = 0; i < _recognitions!.length; i++) {
+      final input = "${_recognitions![i]["detectedClass"]}";
+      print('trans22323 ${_recognitions![i]["detectedClass"]}');
       translator.translate(input, to: 'tr').then((value) {
         setState(() {
-          _recognitions[i]["detectedClass"] = value.toString();
+          _recognitions![i]["detectedClass"] = value.toString();
         });
       }).toString();
     }
     //print('trans $newText');
     //FlutterTts().speak(_recognitions[0]["detectedClass"]);
+  }
+
+  Future _speak(String text) async {
+    //await Future.delayed(Duration(seconds: 5));
+    var result = await flutterTts.speak(text);
+    if (result == 1) setState(() => controllerX.updateState(TtsState.playing));
   }
 
   @override
@@ -100,11 +107,11 @@ class _StaticImageState extends State<StaticImage> {
     if (_imageWidth == null || _imageHeight == null) return [];
 
     double factorX = screen.width;
-    double factorY = _imageHeight / _imageHeight * screen.width;
+    double factorY = _imageHeight! / _imageHeight! * screen.width;
 
     Color blue = Colors.blue;
 
-    return _recognitions.map((re) {
+    return _recognitions!.map((re) {
       return Container(
         child: Positioned(
             left: re["rect"]["x"] * factorX,
@@ -145,12 +152,12 @@ class _StaticImageState extends State<StaticImage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  Text("Please Select an Image"),
+                  Text("Lütfen Bir Resim Seçin"),
                 ],
               ),
             )
           : // if not null then
-          Container(child: Image.file(_image)),
+          Container(child: Image.file(_image!)),
     ));
 
     stackChildren.addAll(renderBoxes(size));
@@ -195,7 +202,7 @@ class _StaticImageState extends State<StaticImage> {
 
   // gets image from camera and runs detectObject
   Future getImageFromCamera() async {
-    final pickedFile = await picker.getImage(source: ImageSource.camera);
+    final pickedFile = await picker.pickImage(source: ImageSource.camera);
 
     setState(() {
       if (pickedFile != null) {
@@ -204,12 +211,12 @@ class _StaticImageState extends State<StaticImage> {
         print("No image Selected");
       }
     });
-    detectObject(_image);
+    detectObject(_image!);
   }
 
   // gets image from gallery and runs detectObject
   Future getImageFromGallery() async {
-    final pickedFile = await picker.getImage(source: ImageSource.gallery);
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
     setState(() {
       if (pickedFile != null) {
         _image = File(pickedFile.path);
@@ -217,13 +224,6 @@ class _StaticImageState extends State<StaticImage> {
         print("No image Selected");
       }
     });
-    detectObject(_image);
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      FlutterTts flutterTts = FlutterTts();
-    }
+    detectObject(_image!);
   }
 }

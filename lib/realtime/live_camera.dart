@@ -1,16 +1,18 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+
 import 'package:get/get.dart';
 import 'package:object_detection/controller.dart';
 import 'package:object_detection/realtime/bounding_box.dart';
 import 'package:object_detection/realtime/camera.dart';
+
 import 'dart:math' as math;
 import 'package:tflite/tflite.dart';
 import 'package:translator/translator.dart';
 
 class LiveFeed extends StatefulWidget {
-  final List<CameraDescription> cameras;
+  final List<CameraDescription>? cameras;
   LiveFeed(this.cameras);
   @override
   _LiveFeedState createState() => _LiveFeedState();
@@ -19,19 +21,15 @@ class LiveFeed extends StatefulWidget {
 enum TtsState { playing, stopped, paused, continued }
 
 class _LiveFeedState extends State<LiveFeed> {
-  List<dynamic> _recognitions;
+  List<dynamic>? _recognitions;
   int _imageHeight = 0;
   int _imageWidth = 0;
-  FlutterTts flutterTts = FlutterTts();
-  GoogleTranslator translator;
+  ControllerX controllerX = Get.find<ControllerX>();
+  FlutterTts flutterTts = Get.find<ControllerX>().flutterTts;
+  late GoogleTranslator translator;
   String object = '';
-  String text;
-  get isPlaying => ttsState == TtsState.playing;
-  get isStopped => ttsState == TtsState.stopped;
-  get isPaused => ttsState == TtsState.paused;
-  get isContinued => ttsState == TtsState.continued;
+  String? text;
 
-  TtsState ttsState = TtsState.stopped;
   initCameras() async {}
   loadTfModel() async {
     await Tflite.loadModel(
@@ -50,13 +48,14 @@ class _LiveFeedState extends State<LiveFeed> {
       _imageWidth = imageWidth;
     });
 
-    final input = "${_recognitions[0]["detectedClass"]}";
+    final input = "${_recognitions![0]["detectedClass"]}";
     translator.translate(input, to: 'tr').then((value) {
       text = value.toString();
       print(value.toString());
       print(
-          '---- isPlaying: ${ttsState != TtsState.playing} --- Same object= ${object != value.toString()}');
-      if (ttsState != TtsState.playing && object != value.toString()) {
+          '---- isPlaying: ${controllerX.ttsState != TtsState.playing} --- Same object= ${object != value.toString()}');
+      if (controllerX.ttsState != TtsState.playing &&
+          object != value.toString()) {
         _speak(value.toString());
         print(value.toString());
       }
@@ -67,7 +66,7 @@ class _LiveFeedState extends State<LiveFeed> {
   Future _speak(String text) async {
     object = text;
     var result = await flutterTts.speak(text);
-    if (result == 1) setState(() => ttsState = TtsState.playing);
+    if (result == 1) setState(() => controllerX.updateState(TtsState.playing));
   }
 
   @override

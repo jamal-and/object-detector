@@ -3,10 +3,10 @@ import 'package:camera/camera.dart';
 import 'package:tflite/tflite.dart';
 import 'dart:math' as math;
 
-typedef void Callback(List<dynamic> list, int h, int w);
+typedef void Callback(List<dynamic>? list, int h, int w);
 
 class CameraFeed extends StatefulWidget {
-  final List<CameraDescription> cameras;
+  final List<CameraDescription>? cameras;
   final Callback setRecognitions;
   // The cameraFeed Class takes the cameras list and the setRecognitions
   // function as argument
@@ -17,27 +17,27 @@ class CameraFeed extends StatefulWidget {
 }
 
 class _CameraFeedState extends State<CameraFeed> {
-  CameraController controller;
+  CameraController? controller;
   bool isDetecting = false;
 
   @override
   void initState() {
     super.initState();
     print(widget.cameras);
-    if (widget.cameras == null || widget.cameras.length < 1) {
+    if (widget.cameras == null || widget.cameras!.length < 1) {
       print('No Cameras Found.');
     } else {
       controller = new CameraController(
-        widget.cameras[0],
+        widget.cameras![0],
         ResolutionPreset.high,
       );
-      controller.initialize().then((_) {
+      controller!.initialize().then((_) {
         if (!mounted) {
           return;
         }
         setState(() {});
 
-        controller.startImageStream((CameraImage img) {
+        controller!.startImageStream((CameraImage img) {
           if (!isDetecting) {
             isDetecting = true;
             Tflite.detectObjectOnFrame(
@@ -73,14 +73,14 @@ class _CameraFeedState extends State<CameraFeed> {
 
   @override
   Widget build(BuildContext context) {
-    if (controller == null || !controller.value.isInitialized) {
+    if (controller == null || !controller!.value.isInitialized) {
       return Container();
     }
 
     var tmp = MediaQuery.of(context).size;
     var screenH = math.max(tmp.height, tmp.width);
     var screenW = math.min(tmp.height, tmp.width);
-    tmp = controller.value.previewSize;
+    tmp = controller!.value.previewSize!;
     var previewH = math.max(tmp.height, tmp.width);
     var previewW = math.min(tmp.height, tmp.width);
     var screenRatio = screenH / screenW;
@@ -91,7 +91,7 @@ class _CameraFeedState extends State<CameraFeed> {
           screenRatio > previewRatio ? screenH : screenW / previewW * previewH,
       maxWidth:
           screenRatio > previewRatio ? screenH / previewH * previewW : screenW,
-      child: CameraPreview(controller),
+      child: CameraPreview(controller!),
     );
   }
 }

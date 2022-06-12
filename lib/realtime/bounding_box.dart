@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
 class BoundingBox extends StatelessWidget {
-  final List<dynamic> results;
+  final List<dynamic>? results;
   final int previewH;
   final int previewW;
   final double screenH;
   final double screenW;
-  final String text;
+  final String? text;
 
   BoundingBox(
     this.results,
@@ -21,7 +21,7 @@ class BoundingBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<Widget> _renderBox() {
-      return results.map((re) {
+      return results!.map((re) {
         var _x = re["rect"]["x"];
         var _w = re["rect"]["w"];
         var _y = re["rect"]["y"];

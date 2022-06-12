@@ -5,13 +5,14 @@ import 'package:object_detection/controller.dart';
 import 'package:object_detection/realtime/live_camera.dart';
 import 'package:object_detection/static%20image/static.dart';
 
-List<CameraDescription> cameras;
+List<CameraDescription>? cameras;
 
 Future<void> main() async {
   // initialize the cameras when the app starts
   WidgetsFlutterBinding.ensureInitialized();
   cameras = await availableCameras();
   Get.put(ControllerX());
+
   // running the app
   runApp(MaterialApp(
     home: MyApp(),
@@ -53,7 +54,7 @@ class _MyAppState extends State<MyApp> {
                       Center(
                         child: Container(
                           child: Text(
-                            'Object detector',
+                            'nesne dedektörü',
                             style: TextStyle(
                                 fontSize: 32,
                                 fontWeight: FontWeight.bold,
