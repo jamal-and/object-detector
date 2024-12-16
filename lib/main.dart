@@ -20,14 +20,14 @@ Future<void> main() async {
     //theme: ThemeData.dark(),
     theme: ThemeData(
         primarySwatch: Colors.purple,
-        accentColor: Colors.purple,
-        buttonColor: Colors.purple,
+        // accentColor: Colors.purple,
+        // buttonColor: Colors.purple,
         primaryColor: Colors.purple,
         floatingActionButtonTheme: FloatingActionButtonThemeData(
           splashColor: Colors.white.withOpacity(0.25),
           backgroundColor: Colors.purple,
         ),
-        colorScheme: ColorScheme.fromSwatch(primaryColorDark: Colors.purple)),
+        colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.purple)),
   ));
 }
 
