@@ -37,7 +37,6 @@ class ControllerX extends GetxController {
 
   @override
   void onReady() async {
-    // TODO: implement onReady
     super.onReady();
     print(await flutterTts.getEngines);
     print('language Ava? ${await flutterTts.isLanguageAvailable("tr")}');

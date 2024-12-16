@@ -1,13 +1,12 @@
 import 'dart:io';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
+import 'package:flutter/material.dart';
+import 'package:flutter_tts/flutter_tts.dart';
+import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:object_detection/controller.dart';
 import 'package:tflite/tflite.dart';
-import 'package:flutter_tts/flutter_tts.dart';
 import 'package:translator/translator.dart';
-import 'package:flutter_tts/flutter_tts.dart';
 
 import '../realtime/live_camera.dart';
 
@@ -48,7 +47,7 @@ class _StaticImageState extends State<StaticImage> {
         threshold: 0.4, // defaults to 0.1
         numResultsPerClass: 10, // defaults to 5
         asynch: true // defaults to true
-        ) as Future<List<dynamic>?>);
+        ));
     FileImage(image)
         .resolve(ImageConfiguration())
         .addListener((ImageStreamListener((ImageInfo info, bool _) {
